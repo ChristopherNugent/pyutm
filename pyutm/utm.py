@@ -1,4 +1,4 @@
-from tapes import MapTape, SetTape, StringTape, InputTape
+from tapes import MapTape, StringTape, InputTape
 
 # Define some strings on the tape
 DATA = '0'

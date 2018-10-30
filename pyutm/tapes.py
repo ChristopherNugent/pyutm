@@ -46,20 +46,6 @@ class StringTape:
     def split(self, delim):
         return self.string.split(delim)
 
-class SetTape:
-    def __init__(self, pset):
-        self.set = pset
-
-    def content(self):
-        return str(self.set)
-
-    def head_pos(self):
-        return 0
-
-    def __contains__(self, item):
-        return item in self.set
-
-
 class MapTape:
     def __init__(self, pmap):
         self.map = pmap
