@@ -42,6 +42,7 @@ class MapTape(Tape):
 class InputTape(Tape):
     def __init__(self, tape, blank_symbol):
         self.symbols = defaultdict(lambda: blank_symbol)
+        self.blank_symbol = blank_symbol
         self.symbols.update({i:sym for i, sym in enumerate(tape)})
         self.hpos = 0
 
@@ -49,6 +50,9 @@ class InputTape(Tape):
         keys = list([k for k in self.symbols])
         keys = sorted(keys)
         values = [self.symbols[k] for k in keys]
+        while len(values) <=  self.hpos:
+            values.append(self.blank_symbol)
+        values[self.hpos] = 'H' + values[self.hpos]
         return '1'.join(values)
 
     def head_pos(self):
@@ -67,7 +71,11 @@ class InputTape(Tape):
         if direction == '0':
             self.hpos -= 1
         elif direction == '00':
-            self.hpos != 1
+            self.hpos += 1
+
+    def __str__(self):
+        return self.content()
+
 
 
 class StringTape(Tape):
