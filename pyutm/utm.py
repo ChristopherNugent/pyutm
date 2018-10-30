@@ -6,8 +6,6 @@ DELIM = '1'
 RULE_DELIM = 2 * DELIM
 CATEGORY_DELIM = 3 * DELIM
 
-class MachineHalt(Exception):
-    pass
 
 class UTM:
     def __init__(self, input_tape):
@@ -32,7 +30,7 @@ class UTM:
         if self.blank_symbol.content() not in self.tape_symbols:
             raise ValueError('The blank symbol must be in the set of tape symbols.')
         self.state = StringTape(machine_fields[4])
-        self.start_state = StringTape(machine_fields[4])
+        self.start_state = machine_fields[4]
         if self.state.content() not in self.states:
             raise ValueError('The start state must be in the set of states.')
         self.accept_state = StringTape(machine_fields[5])
@@ -66,18 +64,26 @@ class UTM:
         illegal_symbols = {err for err in symbols if err not in self.tape_symbols}
         if illegal_symbols:
             raise ValueError('Illegal tape symbols: {}'.format(illegal_symbols))
-        self.machine_tape = InputTape(symbols, self.blank_symbol)
+        self.machine_tape = InputTape(symbols, self.blank_symbol.content())
 
-    def step(self):
+    def __iter__(self):
+        return self
+
+    def __next__(self):
         state = self.state.content()
         tape_symbol = self.machine_tape.read()
+        key = (state, tape_symbol)
         try:
-            new_state, new_symbol, direction = self.rules[(state, tape_symbol)]
+            value = self.rules[key]
+            new_state, new_symbol, direction = value
         except KeyError:
-            raise MachineHalt()
+            raise StopIteration()
         self.state.write(new_state)
         self.machine_tape.write(new_symbol)
         self.machine_tape.move_head(direction)
+        nice_key = tuple([len(k) for k in key])
+        nice_value = tuple([len(v) for v in value[:-1]] + ['L' if value[-1] == '0' else 'R'])
+        return nice_key, nice_value
 
     def print_state(self):
         print('State: {}'.format(len(self.state.content())))
@@ -87,10 +93,9 @@ class UTM:
         elif self.state.content() == self.reject_state.content():
             print('Rejecting.')
 
-
     def print_description(self):
         print('Number of states: {}'.format(len(self.states.content())))
-        print('The start state is: {}'.format(len(self.start_state.content())))
+        print('The start state is: {}'.format(len(self.start_state)))
         print('The accept state is: {}'.format(len(self.accept_state.content())))
         print('The reject state is: {}'.format(len(self.reject_state.content())))
         print('Number of tape symbols: {}'.format(len(self.tape_symbols.content())))
@@ -102,3 +107,22 @@ class UTM:
             v = tuple([len(s) for s in v[:-1]] + [{'0':'L', '00':'R'}[v[-1]]])
             print('{} => {}'.format(k, v))
 
+    def print_static_tapes(self):
+        print('States tape:')
+        print(self.states)
+        print('Tape symbols tape:')
+        print(self.tape_symbols)
+        print('Input symbols tape:')
+        print(self.input_symbols)
+        print('Accept state tape:')
+        print(self.accept_state)
+        print('Reject state tape:')
+        print(self.reject_state)
+        print('Delta function tape:')
+        print(self.rules)
+
+    def print_dynamic_tapes(self):
+        print('State tape:')
+        print(self.state)
+        print('Machine tape:')
+        print(self.machine_tape)

@@ -1,8 +1,7 @@
-from utm import UTM, MachineHalt
-
+from utm import UTM
 SAMPLE_MACHINE = '000100010100101001000'
 DELTA_FUNCTION = '010100100100'
-INPUT_TAPE = '0'
+INPUT_TAPE = '01000'
 
 INPUT_MACHINE = '111'.join([SAMPLE_MACHINE, DELTA_FUNCTION, INPUT_TAPE])
 
@@ -11,10 +10,11 @@ if __name__ == '__main__':
     utm.print_description()
     print()
 
-    try:
-        while True:
-            utm.print_state()
-            print()
-            utm.step()
-    except MachineHalt:
-        print('Machine halted,')
+    print('-----Transitions-----')
+    for start, end in utm:
+        print('{} => {}'.format(start, end))
+        print('Machine tape: {}'.format(utm.machine_tape))
+        print()
+    print()
+    print('Machine halted. Final state:')
+    utm.print_state()
